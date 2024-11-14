@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+#define MAX_VERTICES 5
+struct Node 
+{
+    int vertex;
+    struct Node* next;
+};
+struct Graph 
+{
+    struct Node* adjList[MAX_VERTICES];
+    int numVertices;
+};
+struct Node* createNode(int v) 
+{
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+void initGraphList(struct Graph* graph) 
+{
+    graph->numVertices = MAX_VERTICES;
+    for (int i = 0; i< MAX_VERTICES; i++) 
+    {
+        graph->adjList[i] = NULL;
+    }
+}
+void addEdgeList(struct Graph* graph, int u, int v) 
+{
+    struct Node* newNode = createNode(v);
+    newNode->next = graph->adjList[u];
+    graph->adjList[u] = newNode;
+    newNode = createNode(u);
+    newNode->next = graph->adjList[v];
+    graph->adjList[v] = newNode;
+}
+void BFTList(struct Graph* graph, int start) 
+{
+    bool visited[MAX_VERTICES] = { false };
+    int queue[MAX_VERTICES];
+    int front = 0, rear = 0;
+
+    visited[start] = true;
+    queue[rear++] = start;
+
+    printf("Breadth-First Traversal (BFT) starting from vertex %d: ", start);
+    while (front < rear) 
+    {
+        int current = queue[front++];
+        printf("%d ", current);
+
+        struct Node* temp = graph->adjList[current];
+        while (temp) 
+        {
+            if (!visited[temp->vertex]) 
+            {
+                visited[temp->vertex] = true;
+                queue[rear++] = temp->vertex;
+            }
+            temp = temp->next;
+        }
+    }
+    printf("\n");
+}
+void DFTListRecursive(struct Graph* graph, int vertex, bool visited[]) 
+{
+    visited[vertex] = true;
+    printf("%d ", vertex);
+
+    struct Node* temp = graph->adjList[vertex];
+    while (temp) 
+    {
+        if (!visited[temp->vertex]) 
+        {
+            DFTListRecursive(graph, temp->vertex, visited);
+        }
+        temp = temp->next;
+    }
+}
+void DFTList(struct Graph* graph, int start) 
+{
+    bool visited[MAX_VERTICES] = { false };
+    printf("Depth-First Traversal (DFT) starting from vertex %d: ", start);
+    DFTListRecursive(graph, start, visited);
+    printf("\n");
+}
+int main() 
+{
+    struct Graph graphList;
+    initGraphList(&graphList);
+    addEdgeList(&graphList, 0, 1);
+    addEdgeList(&graphList, 0, 2);
+    addEdgeList(&graphList, 1, 2);
+    addEdgeList(&graphList, 1, 3);
+    addEdgeList(&graphList, 2, 4);
+    addEdgeList(&graphList, 3, 4);
+    printf("Adjacency List:\n");
+    for (int i = 0; i< MAX_VERTICES; i++) 
+    {
+        struct Node* temp = graphList.adjList[i];
+        printf("Vertex %d: ", i);
+        while (temp) 
+        {
+            printf("%d -> ", temp->vertex);
+            temp = temp->next;
+        }
+        printf("NULL\n");
+    }
+
+    int startVertex = 0;
+    BFTList(&graphList, startVertex);
+    DFTList(&graphList, startVertex);
+
+    return 0;
+}
