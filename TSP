@@ -1,0 +1,91 @@
+
+#include <stdio.h>
+#include <limits.h>
+
+#define MAX 10
+#define INF INT_MAX
+
+int n; 
+int dist[MAX][MAX]; 
+int final_res = INF;  
+typedef struct {
+    int cost;     
+    int level;    
+    int visited[MAX];  
+    int path[MAX];     
+} Node;
+int calculateBound(Node* node) {
+    int bound = node->cost;
+    int min1, min2;
+    for (int i = 0; i < n; i++) {
+        if (node->visited[i] == 0) {
+            min1 = INF;
+            min2 = INF;
+            for (int j = 0; j < n; j++) {
+                if (i != j && node->visited[j] == 0) {
+                    if (dist[i][j] < min1) {
+                        min2 = min1;
+                        min1 = dist[i][j];
+                    } else if (dist[i][j] < min2) {
+                        min2 = dist[i][j];
+                    }
+                }
+            }
+            bound += min1 + min2;
+        }
+    }
+
+    return bound;
+}
+
+void branchAndBound(Node* node) {
+    if (node->level == n) {
+        // Add the cost to return to the starting city
+        int return_cost = dist[node->path[node->level - 1]][node->path[0]];
+        if (node->cost + return_cost < final_res) {
+            final_res = node->cost + return_cost;
+            for (int i = 0; i < n; i++) {
+                path[i] = node->path[i];
+            }
+        }
+        return;
+    }
+    for (int city = 0; city < n; city++) {
+        if (node->visited[city] == 0) {
+            Node new_node = *node;  
+            new_node.visited[city] = 1;  
+            new_node.path[new_node.level] = city;  
+            new_node.cost += dist[node->path[node->level - 1]][city]; 
+            new_node.level++;        
+            int bound = calculateBound(&new_node);
+            if (bound < final_res) {
+                branchAndBound(&new_node); 
+            }
+        }
+    }
+}
+
+int main() {
+    printf("Enter number of cities: ");
+    scanf("%d", &n);
+    printf("Enter the distance matrix (size %d x %d):\n", n, n);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &dist[i][j]);
+        }
+    }
+    Node start_node;
+    start_node.cost = 0;
+    start_node.level = 1;
+    start_node.visited[0] = 1;  
+    start_node.path[0] = 0;    
+    branchAndBound(&start_node);
+    printf("Minimum cost: %d\n", final_res);
+    printf("Path taken: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", path[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
