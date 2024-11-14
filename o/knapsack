@@ -1,0 +1,30 @@
+#include <stdio.h>
+int max(int a, int b) {
+    return (a > b) ? a : b;
+}
+void knapsack(int capacity, int weights[], int values[], int n, int currentWeight, int currentValue, int *maxValue) {
+    if (n == 0 || capacity == 0) {
+        *maxValue = max(*maxValue, currentValue);
+        return;
+    }
+    if (weights[n - 1] > capacity) 
+knapsack(capacity, weights, values, n - 1, currentWeight, currentValue, maxValue);
+    } else {
+knapsack(capacity - weights[n - 1], weights, values, n - 1, currentWeight + weights[n - 1], currentValue + values[n - 1], maxValue);
+knapsack(capacity, weights, values, n - 1, currentWeight, currentValue, maxValue);
+    }
+}
+
+int main() {
+    int values[] = {60, 100, 120};
+    int weights[] = {10, 20, 30};
+    int capacity = 50;
+    int n = sizeof(values) / sizeof(values[0]);
+    int maxProfit = 0;
+knapsack(capacity, weights, values, n, 0, 0, &maxProfit);
+printf("Maximum profit: %d\n", maxProfit);
+
+    return 0;
+}
+
+
